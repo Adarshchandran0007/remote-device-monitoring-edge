@@ -1,42 +1,39 @@
 import psutil
 import requests
-import socket
-import uuid
 from getmac import get_mac_address
 from datetime import datetime
 
 
-# def get_mac_address():
-#     mac = ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff) for elements in range(5, -1, -1)])
-#     return mac
-
 def get_mac_address1():
+    """Retrieves the device's MAC address."""
     mac = get_mac_address()
     return mac
 
+
 def collect_system_info():
+    """Collects and formats system information."""
     system_info = {}
 
     # CPU Information
     cpu_info = {}
-    cpu_info['cpu_percent'] = psutil.cpu_percent(interval=1)
-    cpu_info['cpu_count'] = psutil.cpu_count()
+    cpu_info['cpu_utilization'] = psutil.cpu_percent(interval=1)
+    cpu_info['cpu_cores'] = psutil.cpu_count()
     system_info["cpu"] = cpu_info
 
     # Memory Information
     mem_info = {}
     mem = psutil.virtual_memory()
-    mem_info['total'] = mem.total
-    mem_info['available'] = mem.available
+    mem_info['total'] = mem.total / (1024 ** 3)  # Convert to GB
+    mem_info['available'] = mem.available / (1024 ** 3)  # Convert to GB
     mem_info['percent'] = mem.percent
     system_info["memory"] = mem_info
 
     # Disk Information
     disk_info = {}
     disk = psutil.disk_usage('/')
-    disk_info['total'] = disk.total
-    disk_info['used'] = disk.used
-    disk_info['free'] = disk.free
+    disk_info['total'] = disk.total / (1024 ** 3)  # Convert to GB
+    disk_info['used'] = disk.used / (1024 ** 3)  # Convert to GB
+    disk_info['free'] = disk.free / (1024 ** 3)  # Convert to GB
     disk_info['percent'] = disk.percent
     system_info["disk"] = disk_info
 
@@ -46,17 +43,15 @@ def collect_system_info():
     net_info['bytes_sent'] = net.bytes_sent
     net_info['bytes_recv'] = net.bytes_recv
     system_info["network"] = net_info
-    
 
-# Get the current date and time
+    # Get the current date and time
     current_datetime = datetime.now()
 
     # Format the datetime object
     formatted_datetime = current_datetime.isoformat()
-    
+
     system_info["mac_address"] = get_mac_address1()
-    system_info["time_stamp"] =  formatted_datetime
-    
+    system_info["time_stamp"] = formatted_datetime
 
     return system_info
 

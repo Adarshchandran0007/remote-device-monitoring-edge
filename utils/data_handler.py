@@ -9,7 +9,13 @@ mac = get_mac_address()
 
 for i in range(1):
     system = {}
+    """
+    Collects system information including CPU, memory, disk, network usage,
+    and timestamp.
 
+    Returns:
+        A dictionary containing system information.
+    """
     # CPU Information
     cpu_info = {}
     cpu_info['cpu_utilization'] = psutil.cpu_percent(interval=1)

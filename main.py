@@ -4,6 +4,7 @@ from utils.network_handler import backend_url
 from utils.utils import get_mac_address1,collect_system_info,send_system_info_and_heartbeat
 
 if __name__ == "__main__":
+    """Main loop for collecting system information and sending data/heartbeats to the backend server."""
     last_data_sent = time.time()
     last_heartbeat_sent = time.time()
     try:
@@ -11,13 +12,13 @@ if __name__ == "__main__":
             # Get current time
             current_time = time.time()
 
-            if current_time - last_data_sent >= 50:
+            if current_time - last_data_sent >= 60:
                 system_info = collect_system_info()
                 send_system_info_and_heartbeat(system_info, None, backend_url)
                 last_data_sent = current_time
 
             # Send heartbeat every 1 minute
-            if current_time - last_heartbeat_sent >= 60:
+            if current_time - last_heartbeat_sent >=10:
                 heartbeat = {"mac_address": get_mac_address1(), "time_stamp": datetime.now().isoformat()}
                 send_system_info_and_heartbeat(None, heartbeat, backend_url)
                 last_heartbeat_sent = current_time

@@ -1,3 +1,4 @@
+import time
 import psutil
 import requests
 from getmac import get_mac_address
@@ -55,16 +56,52 @@ def collect_system_info():
 
     return system_info
 
-def send_system_info(system_info, backend_url):
+# def send_system_info(system_info, backend_url):
+#     try:
+#         response = requests.post(backend_url, json=system_info)
+#         response.raise_for_status()
+#         print("System information sent successfully!")
+#     except Exception as e:
+#         print(f"Failed to send system information: {e}")
+def send_system_info_and_heartbeat(system_info, heartbeat, backend_url):
+    """Sends system information and heartbeat to the backend server."""
     try:
-        response = requests.post(backend_url, json=system_info)
-        response.raise_for_status()
-        print("System information sent successfully!")
+        if system_info:
+            # Send system information
+            response = requests.post(backend_url + "/receive_data", json=system_info)
+            response.raise_for_status()
+
+        if heartbeat:
+            # Send heartbeat
+            response = requests.post(backend_url + "/heartbeat", json=heartbeat)
+            response.raise_for_status()
+
+        print("System information and heartbeat sent successfully!")
     except Exception as e:
-        print(f"Failed to send system information: {e}")
+        print(f"Error sending information: {e}")
+
 
 if __name__ == "__main__":
-    backend_url = "http://localhost:4000/receive_data"
-    system_info = collect_system_info()
-    # send_system_info(system_info, backend_url)
-    print(system_info) 
+    backend_url = "http://localhost:4000"
+    last_data_sent = time.time()
+    last_heartbeat_sent = time.time()
+    try:
+        while True:
+            # Get current time
+            current_time = time.time()
+
+            if current_time - last_data_sent >= 50:
+                system_info = collect_system_info()
+                send_system_info_and_heartbeat(system_info, None, backend_url)
+                last_data_sent = current_time
+
+            # Send heartbeat every 1 minute
+            if current_time - last_heartbeat_sent >= 60:
+                heartbeat = {"mac_address": get_mac_address(), "time_stamp": datetime.now().isoformat()}
+                send_system_info_and_heartbeat(None, heartbeat, backend_url)
+                last_heartbeat_sent = current_time
+
+            time.sleep(1)  # Sleep for 1 second to avoid high CPU usage
+    except KeyboardInterrupt:
+        print("Loop stopped by user.")
+    

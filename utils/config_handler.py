@@ -1,1 +1,1 @@
-   # Configuration retrieval and management
+# Configuration retrieval and management

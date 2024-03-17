@@ -1,4 +1,5 @@
 # General utility functions
+import subprocess
 import requests
 
 from utils.data_handler import mac,system_info
@@ -28,6 +29,14 @@ def send_system_info_and_heartbeat(system_info, heartbeat, backend_url):
         print("System information and heartbeat sent successfully!")
     except Exception as e:
         print(f"Error sending information: {e}")
+        
+def execute_command(command):
+    """Executes a command and returns the output."""
+    try:
+        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
+        return output.decode()
+    except subprocess.CalledProcessError as e:
+        return f"Error executing command: {e.output.decode()}"
 
 # def send_system_info(system_info, backend_url):
 #     try:

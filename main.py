@@ -11,13 +11,13 @@ if __name__ == "__main__":
             # Get current time
             current_time = time.time()
 
-            if current_time - last_data_sent >= 50:
+            if current_time - last_data_sent >= 10:
                 system_info = collect_system_info()
                 send_system_info_and_heartbeat(system_info, None, backend_url)
                 last_data_sent = current_time
 
             # Send heartbeat every 1 minute
-            if current_time - last_heartbeat_sent >= 60:
+            if current_time - last_heartbeat_sent >= 10:
                 heartbeat = {"mac_address": get_mac_address1(), "time_stamp": datetime.now().isoformat()}
                 send_system_info_and_heartbeat(None, heartbeat, backend_url)
                 last_heartbeat_sent = current_time
@@ -26,3 +26,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Loop stopped by user.")
     
+# print(get_mac_address1())
